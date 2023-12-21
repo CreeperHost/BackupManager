@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "backupmanager",
+  "version": "${version}",
+  "name": "Backup Manager",
+  "description": "",
+  "authors": [
+    "brandon3055",
+    "CreeperHost!"
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": ""
+  },
+  "license": "BSD 4-Clause License",
+  "icon": "",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.creeperhost.backupmanager.fabric.BackupManagerFabric"
+    ]
+  },
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.20",
+    "architectury": ">=9.0.7",
+    "polylib": ">=2000.0.3-build.97"
+  },
+  "mixins": [
+    "backupmanager-common.mixins.json"
+  ]
+}

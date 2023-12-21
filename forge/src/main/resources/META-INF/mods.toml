@@ -1,0 +1,41 @@
+modLoader = "javafml"
+loaderVersion = "[36,)"
+#issueTrackerURL = ""
+license = "BSD 4-Clause License"
+
+[[mods]]
+modId = "backupmanager"
+version = "${version}"
+displayName = "Backup Manager"
+authors = "brandon3055, CreeperHost!"
+description = '''
+'''
+#logoFile = ""
+
+[[dependencies.backupmanager]]
+modId = "forge"
+mandatory = true
+versionRange = "[46,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.backupmanager]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20, 1.20.1, 1.20.2, 1.20.3]"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.backupmanager]]
+modId = "architectury"
+mandatory = true
+versionRange = "[9.0.7,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.backupmanager]]
+modId = "polylib"
+mandatory = true
+versionRange = "[2000.0.3,)"
+ordering = "AFTER"
+side = "BOTH"
