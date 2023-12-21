@@ -1,8 +1,9 @@
 package net.creeperhost.backupmanager.providers;
 
 import net.creeperhost.backupmanager.BackupManager;
+import net.creeperhost.backupmanager.client.gui.BackupsGui;
+import net.creeperhost.backupmanager.client.gui.BackupsGui.FaviconTexture;
 import net.minecraft.FileUtil;
-import net.minecraft.client.gui.screens.FaviconTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;

@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[36,)"
+loaderVersion = "[43,)"
 #issueTrackerURL = ""
 license = "BSD 4-Clause License"
 
@@ -15,27 +15,27 @@ description = '''
 [[dependencies.backupmanager]]
 modId = "forge"
 mandatory = true
-versionRange = "[46,)"
+versionRange = "[43,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.backupmanager]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20, 1.20.1, 1.20.2, 1.20.3]"
+versionRange = "[1.19.2]"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.backupmanager]]
 modId = "architectury"
 mandatory = true
-versionRange = "[9.0.7,)"
+versionRange = "[6.2.46,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.backupmanager]]
 modId = "polylib"
 mandatory = true
-versionRange = "[2000.0.3,)"
+versionRange = "[1900.0.3,)"
 ordering = "AFTER"
 side = "BOTH"

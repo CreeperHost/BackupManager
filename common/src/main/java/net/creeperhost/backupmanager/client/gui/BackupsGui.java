@@ -1,7 +1,7 @@
 package net.creeperhost.backupmanager.client.gui;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
+import com.google.common.hash.Hashing;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.creeperhost.backupmanager.BackupManager;
 import net.creeperhost.backupmanager.providers.Backup;
@@ -18,23 +18,23 @@ import net.creeperhost.polylib.client.modulargui.lib.geometry.Axis;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.creeperhost.polylib.client.modulargui.sprite.Material;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.client.gui.screens.FaviconTexture;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -185,7 +185,7 @@ public class BackupsGui implements GuiProvider {
 
                         ByteArrayOutputStream bos = new ByteArrayOutputStream();
                         ImageIO.write(scaled, "png", bos);
-                        b.getIcon().upload(NativeImage.read(bos.toByteArray()));
+                        b.getIcon().upload(NativeImage.read(new ByteArrayInputStream(bos.toByteArray())));
                     } catch (Throwable e) {
                         BackupManager.LOGGER.error("Failed to load backup preview", e);
                     }
@@ -277,6 +277,74 @@ public class BackupsGui implements GuiProvider {
         public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
             boolean isSelected = selected == backup;
             render.borderRect(getRectangle(), 1, (isMouseOver() || isSelected) ? 0x10FFFFFF : 0, BMStyle.Flat.listEntryBorder(isSelected));
+        }
+    }
+
+    @Environment(EnvType.CLIENT)
+    public static class FaviconTexture implements AutoCloseable {
+        private static final ResourceLocation MISSING_LOCATION = new ResourceLocation("textures/misc/unknown_server.png");
+        private final TextureManager textureManager;
+        private final ResourceLocation textureLocation;
+        @Nullable
+        private DynamicTexture texture;
+        private boolean closed;
+
+        private FaviconTexture(TextureManager textureManager, ResourceLocation resourceLocation) {
+            this.textureManager = textureManager;
+            this.textureLocation = resourceLocation;
+        }
+
+        public static FaviconTexture forWorld(TextureManager textureManager, String string) {
+            String var10006 = Util.sanitizeName(string, ResourceLocation::validPathChar);
+            return new FaviconTexture(textureManager, new ResourceLocation("minecraft", "worlds/" + var10006 + "/" + Hashing.sha1().hashUnencodedChars(string) + "/icon"));
+        }
+
+        public void upload(NativeImage nativeImage) {
+            if (nativeImage.getWidth() == 64 && nativeImage.getHeight() == 64) {
+                try {
+                    this.checkOpen();
+                    if (this.texture == null) {
+                        this.texture = new DynamicTexture(nativeImage);
+                    } else {
+                        this.texture.setPixels(nativeImage);
+                        this.texture.upload();
+                    }
+
+                    this.textureManager.register(this.textureLocation, this.texture);
+                } catch (Throwable var3) {
+                    nativeImage.close();
+                    this.clear();
+                    throw var3;
+                }
+            } else {
+                nativeImage.close();
+                int var10002 = nativeImage.getWidth();
+                throw new IllegalArgumentException("Icon must be 64x64, but was " + var10002 + "x" + nativeImage.getHeight());
+            }
+        }
+
+        public void clear() {
+            this.checkOpen();
+            if (this.texture != null) {
+                this.textureManager.release(this.textureLocation);
+                this.texture.close();
+                this.texture = null;
+            }
+        }
+
+        public ResourceLocation textureLocation() {
+            return this.texture != null ? this.textureLocation : MISSING_LOCATION;
+        }
+
+        public void close() {
+            this.clear();
+            this.closed = true;
+        }
+
+        private void checkOpen() {
+            if (this.closed) {
+                throw new IllegalStateException("Icon already closed");
+            }
         }
     }
 }

@@ -3,9 +3,8 @@ package net.creeperhost.backupmanager.providers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.creeperhost.backupmanager.BackupManager;
-import net.creeperhost.backupmanager.client.gui.BackupsGui;
+import net.creeperhost.backupmanager.client.gui.BackupsGui.FaviconTexture;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.FaviconTexture;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.io.FileUtils;
 
