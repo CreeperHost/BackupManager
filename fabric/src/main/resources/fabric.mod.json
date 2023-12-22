@@ -22,9 +22,9 @@
   },
   "depends": {
     "fabric": "*",
-    "minecraft": ">=1.16.5",
-    "architectury": ">=1.26.37",
-    "polylib": ">=1900.0.3-build.98"
+    "minecraft": ">=1.18.2",
+    "architectury": ">=1.1.55",
+    "polylib": ">=1801.0.3-build.99"
   },
   "mixins": [
     "backupmanager-common.mixins.json"

@@ -1,12 +1,12 @@
 package net.creeperhost.backupmanager.providers;
 
 import net.creeperhost.backupmanager.BackupManager;
-import net.creeperhost.backupmanager.client.gui.BackupsGui;
 import net.creeperhost.backupmanager.client.gui.BackupsGui.FaviconTexture;
 import net.minecraft.FileUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -62,14 +62,14 @@ public interface Backup {
 
     default String getWorldFolderName(String worldName) throws BackupException {
         worldName = worldName.trim();
-        if (worldName.isEmpty()) throw new BackupException(Component.literal("World name can not be empty!"));
+        if (worldName.isEmpty()) throw new BackupException(new TextComponent("World name can not be empty!"));
         Path savesFolder = BackupManager.getSavesPath();
 
         try {
             return FileUtil.findAvailableName(savesFolder, worldName, "");
         } catch (Exception ex) {
             BackupManager.LOGGER.error("Could not create save folder!", ex);
-            throw new BackupException(Component.literal("Could not create save folder! " + ex.getMessage()));
+            throw new BackupException(new TextComponent("Could not create save folder! " + ex.getMessage()));
         }
     }
 
@@ -81,7 +81,7 @@ public interface Backup {
 
                 if (!newFile.startsWith(outputFolder)) {
                     BackupManager.LOGGER.error("Entry is outside of the target dir: " + zipEntry.getName());
-                    throw new BackupException(Component.literal("Invalid zip file"));
+                    throw new BackupException(new TextComponent("Invalid zip file"));
                 }
 
                 if (zipEntry.isDirectory()) {
@@ -104,7 +104,7 @@ public interface Backup {
             zis.closeEntry();
         } catch (Throwable e) {
             BackupManager.LOGGER.error("En error occurred while trying to unzip file: {}", zipFile.toAbsolutePath().toString(), e);
-            throw new BackupException(Component.literal("Failed to unzip file. See log for details."));
+            throw new BackupException(new TextComponent("Failed to unzip file. See log for details."));
         }
     }
 
@@ -115,7 +115,7 @@ public interface Backup {
             tempPath = BackupManager.getSavesPath().resolve(".backup-extract." + i + ".temp");
             i++;
             if (i > 1000) {
-                throw new BackupException(Component.literal("Failed to create temp file after 1000 attempts."));
+                throw new BackupException(new TextComponent("Failed to create temp file after 1000 attempts."));
             }
         } while (Files.exists(tempPath) || Files.isDirectory(tempPath));
         return tempPath;
@@ -124,20 +124,20 @@ public interface Backup {
     default void setWorldName(Path worldFolder, String name) throws BackupException {
         Path levelDat = worldFolder.resolve("level.dat");
         if (!Files.exists(levelDat)) {
-            throw new BackupException(Component.literal("Failed to set world name because level.dat file could not be found!"));
+            throw new BackupException(new TextComponent("Failed to set world name because level.dat file could not be found!"));
         }
 
         try {
             CompoundTag levelTag = NbtIo.readCompressed(levelDat.toFile());
             CompoundTag data = levelTag.getCompound("Data");
             if (!data.contains("LevelName")) {
-                throw new BackupException(Component.literal("Failed to set world name because level.dat file is not valid"));
+                throw new BackupException(new TextComponent("Failed to set world name because level.dat file is not valid"));
             }
             data.putString("LevelName", name);
             NbtIo.writeCompressed(levelTag, levelDat.toFile());
         } catch (IOException ex) {
             BackupManager.LOGGER.error("An error occurred while attempting to update level.dat", ex);
-            throw new BackupException(Component.literal("An error occurred while attempting to update level.dat"));
+            throw new BackupException(new TextComponent("An error occurred while attempting to update level.dat"));
         }
     }
 
@@ -150,14 +150,14 @@ public interface Backup {
                 if (subDirs.size() == 1) {
                     worldPath = subDirs.get(0);
                 } else {
-                    throw new BackupException(Component.literal("Could not locate level.dat file inside the extracted backup."));
+                    throw new BackupException(new TextComponent("Could not locate level.dat file inside the extracted backup."));
                 }
             }
 
             Files.move(worldPath, worldFolder);
         } catch (IOException e) {
             BackupManager.LOGGER.error("An error occurred while attempting to move extracted world!" + e);
-            throw new BackupException(Component.literal("An error occurred while attempting to move extracted world!"));
+            throw new BackupException(new TextComponent("An error occurred while attempting to move extracted world!"));
         }
     }
 }

@@ -1,48 +1,47 @@
-//package net.creeperhost.backupmanager.client;
-//
-//import net.creeperhost.backupmanager.BackupManager;
-//import net.creeperhost.backupmanager.client.gui.BackupsGui;
-//import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
-//import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
-//import net.creeperhost.polylib.client.modulargui.lib.geometry.Rectangle;
-//import net.minecraft.client.Minecraft;
-//import net.minecraft.client.gui.GuiGraphics;
-//import net.minecraft.client.gui.screens.Screen;
-//import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-//import net.minecraft.network.chat.Component;
-//import net.minecraft.sounds.SoundEvents;
-//import net.minecraft.world.level.storage.LevelSummary;
-//
-///**
-// * Created by brandon3055 on 09/12/2023
-// */
-//public class WorldEntryHooks {
-//    private static LevelSummary hoveredSummary = null;
-//
-//    public static void renderWorldEntry(LevelSummary summary, GuiGraphics graphics, int index, int yPos, int xPos, int width, int height, int mouseX, int mouseY, boolean mouseOverEntry, float partialTicks) {
-//        if (BackupManager.getBackups().isEmpty()) return;
-//
-//        GuiRender render = new GuiRender(Minecraft.getInstance(), graphics.pose(), graphics.bufferSource());
-//        Component text = Component.translatable("backupmanager:button.backups");
-//        int btnWidth = render.font().width(text) + 4;
-//        Rectangle bounds = Rectangle.create(xPos + width - 4 - btnWidth + 1, yPos - 1, btnWidth, 12);
-//        boolean mouseOver = bounds.contains(mouseX, mouseY);
-//
-//        render.borderRect(bounds, 1, 0xFF000000, mouseOver ? 0xFFFFFFFF : 0xFF606060);
-//        render.drawString(text, bounds.x() + 2, bounds.y() + 2, mouseOver ? 0x66FF00 : 0xFFFFFF, false);
-//
-//        if (mouseOver) {
-//            hoveredSummary = summary;
-//        } else if (hoveredSummary == summary) {
-//            hoveredSummary = null;
-//        }
-//    }
-//
-//    public static boolean entryClicked(LevelSummary summary, Screen screen, double mouseX, double mouseY, int button) {
-//        if (hoveredSummary == null || summary != hoveredSummary) return false;
-//        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
-//        Minecraft.getInstance().setScreen(new ModularGuiScreen(new BackupsGui(hoveredSummary), screen));
-//        return true;
-//        return false;
-//    }
-//}
+package net.creeperhost.backupmanager.client;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.creeperhost.backupmanager.BackupManager;
+import net.creeperhost.backupmanager.client.gui.BackupsGui;
+import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
+import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
+import net.creeperhost.polylib.client.modulargui.lib.geometry.Rectangle;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.sounds.SoundEvents;
+
+/**
+ * Created by brandon3055 on 09/12/2023
+ */
+public class WorldEntryHooks {
+    private static boolean mouseOver = false;
+    private static Rectangle bounds = null;
+
+    public static void renderWorldEntry(SelectWorldScreen screen, PoseStack poseStack, int index, int yPos, int xPos, int width, int height, int mouseX, int mouseY, boolean mouseOverEntry, float partialTicks) {
+        if (!BackupManager.hasBackups() || index != screen.list.children().size() - 1) {
+            if (mouseOverEntry) mouseOver = false;
+            return;
+        }
+
+        GuiRender render = new GuiRender(Minecraft.getInstance(), poseStack, MultiBufferSource.immediate(Tesselator.getInstance().getBuilder()));
+        bounds = Rectangle.create(xPos, yPos + height + 3, width, 18);
+        mouseOver = bounds.contains(mouseX, mouseY);
+
+        render.borderRect(bounds, 1, 0xFF000000, mouseOver ? 0xFFFFFFFF : 0xFF606060);
+        render.drawCenteredString(new TranslatableComponent("backupmanager:button.backups_entry"), bounds.x() + (width / 2D), bounds.y() + 5, mouseOver ? 0x66FF00 : 0xFFFFFF, false);
+        if (!mouseOver) bounds = null;
+    }
+
+    public static boolean click(SelectWorldScreen screen, double mouseX, double mouseY, int button) {
+        if (mouseOver && bounds != null && bounds.contains(mouseX, mouseY)) {
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
+            Minecraft.getInstance().setScreen(new ModularGuiScreen(new BackupsGui(screen), screen));
+            return true;
+        }
+        return false;
+    }
+}

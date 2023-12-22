@@ -28,7 +28,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
-    modApi "curse.maven:ftb-backups-2-622737:4834395"
+    modApi "curse.maven:ftb-backups-2-622737:4834390"
 }
 
 processResources {

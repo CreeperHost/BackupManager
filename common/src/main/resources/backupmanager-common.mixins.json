@@ -2,6 +2,7 @@
   "required": true,
   "package": "net.creeperhost.backupmanager.mixin",
   "client": [
+    "WorldListEntryMixin",
     "WorldSelectionListMixin"
   ],
   "server": []

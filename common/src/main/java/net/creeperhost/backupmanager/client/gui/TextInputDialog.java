@@ -8,6 +8,7 @@ import net.creeperhost.polylib.client.modulargui.lib.Constraints;
 import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +40,7 @@ public class TextInputDialog extends GuiElement<TextInputDialog> implements Back
                 .constrain(TOP, relative(get(TOP), 5))
                 .constrain(LEFT, relative(get(LEFT), 5))
                 .constrain(RIGHT, relative(get(RIGHT), -5))
-                .constrain(HEIGHT, literal(font().wordWrapHeight(title, 200 - 10)));
+                .constrain(HEIGHT, literal(font().wordWrapHeight(title.getString(), 200 - 10)));
 
         GuiRectangle textBg = new GuiRectangle(this)
                 .fill(0xA0202020)
@@ -52,14 +53,14 @@ public class TextInputDialog extends GuiElement<TextInputDialog> implements Back
                 .setEnterPressed(this::accept);
         Constraints.bind(textField, textBg, 0, 3, 0, 3);
 
-        GuiButton accept = GuiButton.flatColourButton(this, () -> Component.translatable("backupmanager:button.ok"), hovered -> hovered ? 0xFF44AA44 : 0xFF118811)
+        GuiButton accept = GuiButton.flatColourButton(this, () -> new TranslatableComponent("backupmanager:button.ok"), hovered -> hovered ? 0xFF44AA44 : 0xFF118811)
                 .onPress(this::accept)
                 .constrain(TOP, relative(textBg.get(BOTTOM), 3))
                 .constrain(LEFT, match(textBg.get(LEFT)))
                 .constrain(RIGHT, midPoint(textBg.get(LEFT), textBg.get(RIGHT), -1))
                 .constrain(HEIGHT, literal(14));
 
-        GuiButton cancel = GuiButton.flatColourButton(this, () -> Component.translatable("backupmanager:button.cancel"), hovered -> hovered ? 0xFFAA4444 : 0xFF881111)
+        GuiButton cancel = GuiButton.flatColourButton(this, () -> new TranslatableComponent("backupmanager:button.cancel"), hovered -> hovered ? 0xFFAA4444 : 0xFF881111)
                 .onPress(this::close)
                 .constrain(TOP, relative(textBg.get(BOTTOM), 3))
                 .constrain(LEFT, midPoint(textBg.get(LEFT), textBg.get(RIGHT), 1))

@@ -1,10 +1,11 @@
 package net.creeperhost.backupmanager.providers;
 
 import net.creeperhost.backupmanager.BackupManager;
-import net.creeperhost.backupmanager.client.gui.BackupsGui;
 import net.creeperhost.backupmanager.client.gui.BackupsGui.FaviconTexture;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -77,7 +78,7 @@ public class VanillaBackupProvider implements BackupProvider {
 
         @Override
         public List<Component> hoverText() {
-            return List.of(Component.translatable("backupmanager:gui.backups.file_location"), Component.literal(location).withStyle(ChatFormatting.GRAY));
+            return List.of(new TranslatableComponent("backupmanager:gui.backups.file_location"), new TextComponent(location).withStyle(ChatFormatting.GRAY));
         }
 
         @Override
@@ -109,11 +110,11 @@ public class VanillaBackupProvider implements BackupProvider {
         public void delete() throws BackupException {
             File backup = new File(location);
             if (!backup.isFile()) {
-                throw new BackupException(Component.literal("Backup file not found: " + location));
+                throw new BackupException(new TextComponent("Backup file not found: " + location));
             }
 
             if (!backup.delete()) {
-                throw new BackupException(Component.literal("Failed do delete backup file! You may need to delete the file manually: " + location));
+                throw new BackupException(new TextComponent("Failed do delete backup file! You may need to delete the file manually: " + location));
             }
         }
 
@@ -123,7 +124,7 @@ public class VanillaBackupProvider implements BackupProvider {
             Path backup = fileSystem.getPath(location);
 
             if (!Files.exists(backup)) {
-                throw new BackupException(Component.literal("Backup file not found: " + location));
+                throw new BackupException(new TextComponent("Backup file not found: " + location));
             }
 
             Path worldFolder = BackupManager.getSavesPath().resolve(getWorldFolderName(restoreName));
@@ -134,7 +135,7 @@ public class VanillaBackupProvider implements BackupProvider {
             try {
                 setWorldName(worldFolder, restoreName);
             } catch (BackupException ex) {
-                throw new BackupException(Component.literal("World was extracted but name could not be set. \nReason:\n").append(ex.getComponent()));
+                throw new BackupException(new TextComponent("World was extracted but name could not be set. \nReason:\n").append(ex.getComponent()));
             } finally {
                 try {
                     if (Files.exists(temp)) {

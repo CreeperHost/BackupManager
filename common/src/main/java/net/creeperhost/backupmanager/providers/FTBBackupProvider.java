@@ -6,6 +6,8 @@ import net.creeperhost.backupmanager.BackupManager;
 import net.creeperhost.backupmanager.client.gui.BackupsGui.FaviconTexture;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -40,7 +42,7 @@ public class FTBBackupProvider implements BackupProvider {
             Path path = fileSystem.getPath(backup.backupLocation);
             if (!backup.complete || !Files.exists(path)) continue;
             if (backup.snapshot) {
-                backup.info.add(Component.literal("Snapshot").withStyle(ChatFormatting.YELLOW));
+                backup.info.add(new TextComponent("Snapshot").withStyle(ChatFormatting.YELLOW));
             }
             results.add(backup);
         }
@@ -101,7 +103,7 @@ public class FTBBackupProvider implements BackupProvider {
 
         @Override
         public List<Component> hoverText() {
-            return List.of(Component.translatable("backupmanager:gui.backups.file_location"), Component.literal(backupLocation).withStyle(ChatFormatting.GRAY));
+            return List.of(new TranslatableComponent("backupmanager:gui.backups.file_location"), new TextComponent(backupLocation).withStyle(ChatFormatting.GRAY));
         }
 
         @Override
@@ -138,30 +140,30 @@ public class FTBBackupProvider implements BackupProvider {
         public void delete() throws BackupException {
             BackupsStore backupsStore = readBackupsJson();
             if (backupsStore == null) {
-                throw new BackupException(Component.literal("Failed to read backups json file."));
+                throw new BackupException(new TextComponent("Failed to read backups json file."));
             }
 
             if (backupFormat != Format.ZIP) {
                 //TODO Support directory format
-                throw new BackupException(Component.literal("Backup manager currently only supports backups using the zip format! (Found: " + backupFormat + ")"));
+                throw new BackupException(new TextComponent("Backup manager currently only supports backups using the zip format! (Found: " + backupFormat + ")"));
             }
 
             File backup = new File(backupLocation);
             if (!backup.isFile()) {
-                throw new BackupException(Component.literal("Backup file not found: " + backupLocation));
+                throw new BackupException(new TextComponent("Backup file not found: " + backupLocation));
             }
 
             boolean removed = backupsStore.backups.removeIf(e -> Objects.equals(e.sha1, sha1) && Objects.equals(e.worldName, worldName) && Objects.equals(e.createTime, createTime));
             if (!removed) {
-                throw new BackupException(Component.literal("Could not find backup in the FTBBackups 2 'backups.json' file."));
+                throw new BackupException(new TextComponent("Could not find backup in the FTBBackups 2 'backups.json' file."));
             }
 
             if (!writeBackupsJson(backupsStore)) {
-                throw new BackupException(Component.literal("Failed to update the FTBBackups 2 'backups.json' file."));
+                throw new BackupException(new TextComponent("Failed to update the FTBBackups 2 'backups.json' file."));
             }
 
             if (!backup.delete()) {
-                throw new BackupException(Component.literal("Backup entry was removed from the FTBBackups 2 'backups.json' file, But the actual backup file could not be deleted! You may need to delete the file manually: " + backupLocation));
+                throw new BackupException(new TextComponent("Backup entry was removed from the FTBBackups 2 'backups.json' file, But the actual backup file could not be deleted! You may need to delete the file manually: " + backupLocation));
             }
         }
 
@@ -169,13 +171,13 @@ public class FTBBackupProvider implements BackupProvider {
         public void restore(String restoreName) throws BackupException {
             if (backupFormat != Format.ZIP) {
                 //TODO Support directory format
-                throw new BackupException(Component.literal("Backup manager currently only supports backups using the zip format! (Found: " + backupFormat + ")"));
+                throw new BackupException(new TextComponent("Backup manager currently only supports backups using the zip format! (Found: " + backupFormat + ")"));
             }
 
             FileSystem fileSystem = FileSystems.getDefault();
             Path backup = fileSystem.getPath(backupLocation);
             if (!Files.exists(backup)) {
-                throw new BackupException(Component.literal("Backup file not found: " + backupLocation));
+                throw new BackupException(new TextComponent("Backup file not found: " + backupLocation));
             }
 
             Path worldFolder = BackupManager.getSavesPath().resolve(getWorldFolderName(restoreName));
@@ -188,7 +190,7 @@ public class FTBBackupProvider implements BackupProvider {
                 try {
                     FileUtils.deleteDirectory(temp.toFile());
                 } catch (IOException ignored) {}
-                throw new BackupException(Component.literal("Zip file contents do not match the expected structure of an FTB Backups 2 zip! Can not proceed."));
+                throw new BackupException(new TextComponent("Zip file contents do not match the expected structure of an FTB Backups 2 zip! Can not proceed."));
             }
 
             setWorldName(extracted, restoreName);
@@ -198,7 +200,7 @@ public class FTBBackupProvider implements BackupProvider {
                 FileUtils.deleteDirectory(temp.toFile());
             } catch (IOException e) {
                 BackupManager.LOGGER.error("Backup was restored but the temporary directory could not be deleted. " + e);
-                throw new BackupException(Component.literal("Backup was restored but the temporary directory could not be deleted: " + temp.toAbsolutePath()));
+                throw new BackupException(new TextComponent("Backup was restored but the temporary directory could not be deleted: " + temp.toAbsolutePath()));
             }
         }
 

@@ -12,6 +12,7 @@ import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.NotNull;
 
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.*;
@@ -114,10 +115,10 @@ public class OptionDialog extends GuiElement<OptionDialog> implements Background
     public static OptionDialog simpleInfoDialog(@NotNull GuiParent<?> parent, Component dialogText, Runnable onAccepted) {
         OptionDialog dialog = new OptionDialog(parent.getModularGui().getRoot(),
                 dialogText,
-                Component.translatable("backupmanager:button.ok").withStyle(GREEN))
+                new TranslatableComponent("backupmanager:button.ok").withStyle(GREEN))
                 .onButtonPress(0, onAccepted);
         
-        int height = parent.font().wordWrapHeight(dialogText, 190);
+        int height = parent.font().wordWrapHeight(dialogText.getString(), 190);
         dialog.constrain(HEIGHT, literal(45 + height));
         return dialog;
     }

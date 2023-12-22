@@ -22,10 +22,13 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,12 +56,12 @@ import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.*;
  */
 public class BackupsGui implements GuiProvider {
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
-    private final SelectWorldScreen screen;
+    private final Screen superParent;
     private GuiList<Backup> backupList;
     private Backup selected = null;
 
-    public BackupsGui(SelectWorldScreen screen) {
-        this.screen = screen;
+    public BackupsGui(SelectWorldScreen parent) {
+        this.superParent = parent.lastScreen;
         BackupManager.refreshBackups();
     }
 
@@ -71,7 +74,7 @@ public class BackupsGui implements GuiProvider {
     public void buildGui(ModularGui gui) {
         gui.renderScreenBackground(false);
         gui.initFullscreenGui();
-        gui.setGuiTitle(Component.translatable("backupmanager:gui.backups.title"));
+        gui.setGuiTitle(new TranslatableComponent("backupmanager:gui.backups.title"));
 
         GuiElement<?> root = gui.getRoot();
 
@@ -87,15 +90,15 @@ public class BackupsGui implements GuiProvider {
                 .constrain(TOP, relative(root.get(TOP), 20))
                 .constrain(BOTTOM, relative(root.get(BOTTOM), -24));
 
-        GuiButton back = BMStyle.Flat.button(root, Component.translatable("backupmanager:button.back_arrow"))
-                .onPress(() -> gui.mc().setScreen(gui.getParentScreen()))
+        GuiButton back = BMStyle.Flat.button(root, new TranslatableComponent("backupmanager:button.back_arrow"))
+                .onPress(() -> gui.mc().setScreen(new SelectWorldScreen(superParent)))
                 .constrain(BOTTOM, relative(listBackground.get(TOP), -4))
                 .constrain(LEFT, match(listBackground.get(LEFT)))
                 .constrain(WIDTH, literal(50))
                 .constrain(HEIGHT, literal(12));
 
-        GuiButton restore = BMStyle.Flat.buttonPrimary(root, Component.translatable("backupmanager:button.restore_backup"))
-                .setTooltip(Component.translatable("backupmanager:button.restore_backup.info"))
+        GuiButton restore = BMStyle.Flat.buttonPrimary(root, new TranslatableComponent("backupmanager:button.restore_backup"))
+                .setTooltip(new TranslatableComponent("backupmanager:button.restore_backup.info"))
                 .setDisabled(() -> selected == null)
                 .onPress(() -> restoreSelected(gui))
                 .constrain(TOP, relative(listBackground.get(BOTTOM), 5))
@@ -103,7 +106,7 @@ public class BackupsGui implements GuiProvider {
                 .constrain(WIDTH, literal(150))
                 .constrain(HEIGHT, literal(14));
 
-        GuiButton delete = BMStyle.Flat.buttonCaution(root, Component.translatable("backupmanager:button.delete_backup"))
+        GuiButton delete = BMStyle.Flat.buttonCaution(root, new TranslatableComponent("backupmanager:button.delete_backup"))
                 .onPress(() -> deleteSelected(gui))
                 .setDisabled(() -> selected == null)
                 .constrain(TOP, relative(listBackground.get(BOTTOM), 5))
@@ -137,21 +140,20 @@ public class BackupsGui implements GuiProvider {
             selected = null;
             updateList(true);
         } catch (BackupException ex) {
-            OptionDialog.simpleInfoDialog(gui, Component.translatable("backupmanager:gui.backups.error_occurred", ex.getComponent().copy().withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.RED));
+            OptionDialog.simpleInfoDialog(gui, new TranslatableComponent("backupmanager:gui.backups.error_occurred", ex.getComponent().copy().withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.RED));
         }
     }
 
     private void restoreSelected(ModularGui gui) {
         if (selected == null) return;
-        TextInputDialog dialog = new TextInputDialog(gui.getRoot(), Component.translatable("backupmanager:gui.backups.restore_name"));
+        TextInputDialog dialog = new TextInputDialog(gui.getRoot(), new TranslatableComponent("backupmanager:gui.backups.restore_name"));
         dialog.setResultCallback(name -> {
             try {
                 selected.restore(name);
-                screen.list.reloadWorldList();
                 selected = null;
-                OptionDialog.simpleInfoDialog(gui, Component.translatable("backupmanager:gui.backups.restored").withStyle(ChatFormatting.GREEN));
+                OptionDialog.simpleInfoDialog(gui, new TranslatableComponent("backupmanager:gui.backups.restored").withStyle(ChatFormatting.GREEN));
             } catch (BackupException ex) {
-                OptionDialog.simpleInfoDialog(gui, Component.translatable("backupmanager:gui.backups.error_occurred", ex.getComponent().copy().withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.RED));
+                OptionDialog.simpleInfoDialog(gui, new TranslatableComponent("backupmanager:gui.backups.error_occurred", ex.getComponent().copy().withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.RED));
             }
         });
     }
@@ -194,7 +196,7 @@ public class BackupsGui implements GuiProvider {
                 File zip = new File(backup.backupLocation());
                 if (backup.getIcon() == null && zip.exists() && zip.getName().endsWith(".zip")) {
                     backup.setIcon(FaviconTexture.forWorld(mc().getTextureManager(), Util.sanitizeName(backup.backupLocation(), ResourceLocation::validPathChar)));
-                    try (FileSystem fs = FileSystems.newFileSystem(zip.toPath())){
+                    try (FileSystem fs = FileSystems.newFileSystem(zip.toPath())) {
                         List<Path> paths = Streams.stream(fs.getRootDirectories()).filter(Files::isDirectory).toList();
                         Path worldDir = null;
 
@@ -226,7 +228,7 @@ public class BackupsGui implements GuiProvider {
                 leftOffset += 3;
             }
 
-            GuiText name = new GuiText(this, Component.literal(backup.name() + (backup.displayName().isEmpty() ? "" : " (" + backup.displayName() + ")")))
+            GuiText name = new GuiText(this, new TextComponent(backup.name() + (backup.displayName().isEmpty() ? "" : " (" + backup.displayName() + ")")))
                     .setShadow(false)
                     .setAlignment(Align.LEFT)
                     .constrain(TOP, relative(get(TOP), 3))
@@ -234,7 +236,7 @@ public class BackupsGui implements GuiProvider {
                     .constrain(RIGHT, relative(get(RIGHT), -2))
                     .constrain(HEIGHT, literal(8));
 
-            GuiText created = new GuiText(this, Component.translatable("backupmanager:gui.backups.created", DATE_TIME_FORMAT.format(backup.creationTime())).withStyle(ChatFormatting.GRAY))
+            GuiText created = new GuiText(this, new TranslatableComponent("backupmanager:gui.backups.created", DATE_TIME_FORMAT.format(backup.creationTime())).withStyle(ChatFormatting.GRAY))
                     .setShadow(false)
                     .setAlignment(Align.LEFT)
                     .constrain(TOP, relative(name.get(BOTTOM), 2))
@@ -242,9 +244,9 @@ public class BackupsGui implements GuiProvider {
                     .constrain(RIGHT, relative(get(RIGHT), -2))
                     .constrain(HEIGHT, literal(8));
 
-            Component provText = Component.literal(backup.backupProvider());
+            Component provText = new TextComponent(backup.backupProvider());
             GuiText provider = new GuiText(this, provText)
-                    .setTooltip(Component.translatable("backupmanager:gui.backups.provider", backup.backupProvider()))
+                    .setTooltip(new TranslatableComponent("backupmanager:gui.backups.provider", backup.backupProvider()))
                     .setShadow(false)
                     .setAlignment(Align.RIGHT)
                     .constrain(TOP, relative(get(TOP), 3))
@@ -280,7 +282,7 @@ public class BackupsGui implements GuiProvider {
         }
     }
 
-    @Environment(EnvType.CLIENT)
+    @Environment (EnvType.CLIENT)
     public static class FaviconTexture implements AutoCloseable {
         private static final ResourceLocation MISSING_LOCATION = new ResourceLocation("textures/misc/unknown_server.png");
         private final TextureManager textureManager;
