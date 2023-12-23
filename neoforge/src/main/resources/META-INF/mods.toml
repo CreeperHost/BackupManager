@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[36,)"
+loaderVersion = "[1.0,)"
 #issueTrackerURL = ""
 license = "BSD 4-Clause License"
 
@@ -13,9 +13,9 @@ description = '''
 #logoFile = ""
 
 [[dependencies.backupmanager]]
-modId = "forge"
+modId = "neoforge"
 mandatory = true
-versionRange = "[48,)"
+versionRange = "[20.2,)"
 ordering = "NONE"
 side = "BOTH"
 
@@ -39,3 +39,6 @@ mandatory = true
 versionRange = "[2002.0.3,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[mixins]]
+config = "backupmanager-common.mixins.json"

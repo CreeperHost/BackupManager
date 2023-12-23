@@ -24,10 +24,14 @@ loom {
 
 configurations {
     common
-    shadowCommon // Don't use shadow from the shadow plugin since it *excludes* files.
+    shadowLib
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    shadowCommon.extendsFrom shadowLib
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
+    implementation.extendsFrom shadowLib
+    forgeRuntimeLibrary.extendsFrom shadowLib
 }
 
 dependencies {
@@ -38,8 +42,8 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
-    modApi "curse.maven:ftb-backups-2-622737:4834403"
-    modApi "curse.maven:simple-backups-583228:4575665"
+//    modApi "curse.maven:ftb-backups-2-622737:4834403"
+//    modApi "curse.maven:simple-backups-583228:4575665"
 }
 
 processResources {
@@ -55,18 +59,19 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
+    archiveClassifier = "dev-shadow"
+    mergeServiceFiles()
 }
 
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     archiveBaseName.set "${rootProject.archives_base_name}-${project.name}-${rootProject.minecraft_version}"
-    classifier null
+    archiveClassifier = null
 }
 
 jar {
-    classifier "dev"
+    archiveClassifier = "dev"
 }
 
 sourcesJar {
