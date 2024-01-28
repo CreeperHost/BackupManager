@@ -4,6 +4,7 @@ import net.creeperhost.backupmanager.BackupManager;
 import net.minecraft.FileUtil;
 import net.minecraft.client.gui.screens.FaviconTexture;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.io.IOUtils;
@@ -127,13 +128,13 @@ public interface Backup {
         }
 
         try {
-            CompoundTag levelTag = NbtIo.readCompressed(levelDat.toFile());
+            CompoundTag levelTag = NbtIo.readCompressed(levelDat, NbtAccounter.unlimitedHeap());
             CompoundTag data = levelTag.getCompound("Data");
             if (!data.contains("LevelName")) {
                 throw new BackupException(Component.literal("Failed to set world name because level.dat file is not valid"));
             }
             data.putString("LevelName", name);
-            NbtIo.writeCompressed(levelTag, levelDat.toFile());
+            NbtIo.writeCompressed(levelTag, levelDat);
         } catch (IOException ex) {
             BackupManager.LOGGER.error("An error occurred while attempting to update level.dat", ex);
             throw new BackupException(Component.literal("An error occurred while attempting to update level.dat"));

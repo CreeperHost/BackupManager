@@ -24,11 +24,6 @@ public class BackupsListEntry extends WorldSelectionList.Entry {
     }
 
     @Override
-    public boolean isSelectable() {
-        return false;
-    }
-
-    @Override
     public Component getNarration() {
         return Component.empty();
     }

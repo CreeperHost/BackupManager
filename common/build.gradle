@@ -1,9 +1,18 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "7.0.0"
+    id "maven-publish"
+}
+
 architectury {
-    common(rootProject.enabled_platforms.split(","))
+    common("fabric", "forge", "neoforge")
 }
 
 loom {
     accessWidenerPath = file("src/main/resources/backupmanager.accesswidener")
+}
+
+configurations {
+    shadowCommon
 }
 
 dependencies {
