@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,6 +29,9 @@ public class VanillaBackupProvider implements BackupProvider {
     @Override
     public List<Backup> getBackups() throws IOException {
         Path backups = BackupManager.getMcPath().resolve("backups");
+        if (!Files.exists(backups)) {
+            return Collections.emptyList();
+        }
         List<Backup> results = new ArrayList<>();
         List<Path> files = Files.list(backups).toList();
 
@@ -38,19 +42,24 @@ public class VanillaBackupProvider implements BackupProvider {
             if (!fileName.contains("_")) continue;
             int i = fileName.indexOf("_");
             int dateEnd = fileName.indexOf("_", i + 1);
-            if (dateEnd == -1 || fileName.length() <= dateEnd + 1) continue;
+            String name;
+            if (dateEnd == -1 || fileName.length() <= dateEnd + 1) {
+                dateEnd = fileName.length();
+                name = fileName;
+            } else {
+                name = fileName.substring(dateEnd + 1).replace(".zip", "");
+            }
 
             long timestamp;
             try {
                 timestamp = DATE_FORMAT.parse(fileName.substring(0, dateEnd)).getTime();
             } catch (ParseException e) {
+                e.printStackTrace();
                 continue;
             }
 
-            String name = fileName.substring(dateEnd + 1).replace(".zip", "");
             results.add(new VanillaBackup(file.toAbsolutePath().toString(), name, timestamp));
         }
-
         return results;
     }
 
