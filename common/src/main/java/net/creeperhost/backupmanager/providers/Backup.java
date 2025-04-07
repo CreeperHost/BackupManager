@@ -129,7 +129,7 @@ public interface Backup {
 
         try {
             CompoundTag levelTag = NbtIo.readCompressed(levelDat, NbtAccounter.unlimitedHeap());
-            CompoundTag data = levelTag.getCompound("Data");
+            CompoundTag data = levelTag.getCompound("Data").orElse(new CompoundTag());
             if (!data.contains("LevelName")) {
                 throw new BackupException(Component.literal("Failed to set world name because level.dat file is not valid"));
             }
