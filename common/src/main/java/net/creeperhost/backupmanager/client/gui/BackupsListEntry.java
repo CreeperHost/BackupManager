@@ -41,12 +41,12 @@ public class BackupsListEntry extends WorldSelectionList.Entry {
 
     @Override
     public void render(GuiGraphics graphics, int index, int yPos, int xPos, int width, int height, int mouseX, int mouseY, boolean mouseOverEntry, float partialTicks) {
-        GuiRender render = GuiRender.convert(graphics);
+        GuiRender render = new GuiRender(graphics);
 
         Rectangle bounds = Rectangle.create(xPos, yPos, width, 18);
         mouseOver = bounds.contains(mouseX, mouseY);
 
         render.borderRect(bounds, 1, 0xFF000000, mouseOver ? 0xFFFFFFFF : 0xFF606060);
-        render.drawCenteredString(Component.translatable("backupmanager:button.backups_entry"), bounds.x() + (width / 2D), bounds.y() + 5, mouseOver ? 0x66FF00 : 0xFFFFFF, false);
+        render.drawCenteredString(Component.translatable("backupmanager:button.backups_entry"), bounds.x() + (width / 2D), bounds.y() + 5, mouseOver ? 0xFF66FF00 : 0xFFFFFFFF, false);
     }
 }
