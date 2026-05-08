@@ -160,4 +160,24 @@ public interface Backup {
             throw new BackupException(Component.literal("An error occurred while attempting to move extracted world!"));
         }
     }
+
+    default Path findWorld(Path extractedBackup) throws BackupException {
+        Path worldPath = extractedBackup;
+
+        try {
+            while (!Files.exists(worldPath.resolve("level.dat"))) {
+                List<Path> subDirs = Files.list(worldPath).filter(Files::isDirectory).toList();
+                if (subDirs.size() == 1) {
+                    worldPath = subDirs.get(0);
+                } else {
+                    throw new BackupException(Component.literal("Could not locate level.dat file inside the extracted backup."));
+                }
+            }
+
+            return worldPath;
+        } catch (IOException e) {
+            BackupManager.LOGGER.error("An error occurred while attempting to move extracted world!" + e);
+            throw new BackupException(Component.literal("An error occurred while attempting to move extracted world!"));
+        }
+    }
 }
