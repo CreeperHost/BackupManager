@@ -1,8 +1,15 @@
 {
   "required": true,
   "package": "net.creeperhost.backupmanager.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.7.11",
   "client": [
+    "AbstractSelectionListMixin",
     "WorldSelectionListMixin"
   ],
-  "server": []
+  "server": [],
+  "mixins": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

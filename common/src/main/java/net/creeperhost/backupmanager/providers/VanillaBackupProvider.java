@@ -27,6 +27,9 @@ public class VanillaBackupProvider implements BackupProvider {
     public List<Backup> getBackups() throws IOException {
         Path backups = BackupManager.getMcPath().resolve("backups");
         List<Backup> results = new ArrayList<>();
+        if (!Files.exists(backups)) {
+            return results;
+        }
         List<Path> files = Files.list(backups).toList();
 
         for (Path file : files) {

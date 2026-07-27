@@ -2,7 +2,6 @@ package net.creeperhost.backupmanager.fabric;
 
 import net.creeperhost.backupmanager.BackupManager;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

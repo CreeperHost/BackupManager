@@ -11,6 +11,7 @@ import net.creeperhost.polylib.client.modulargui.lib.Constraints;
 import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -87,7 +88,7 @@ public class OptionDialog extends GuiElement<OptionDialog> implements Background
     }
 
     @Override
-    public boolean keyPressed(int key, int scancode, int modifiers) {
+    public boolean keyPressed(KeyEvent keyEvent) {
         return true;
     }
 

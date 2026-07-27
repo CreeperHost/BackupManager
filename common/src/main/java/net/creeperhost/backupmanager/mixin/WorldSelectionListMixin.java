@@ -2,7 +2,7 @@ package net.creeperhost.backupmanager.mixin;
 
 import net.creeperhost.backupmanager.BackupManager;
 import net.creeperhost.backupmanager.client.gui.BackupsListEntry;
-import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.WorldSelectionList;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin (WorldSelectionList.class)
 public class WorldSelectionListMixin {
 
-    @Shadow @Final private SelectWorldScreen screen;
+    @Shadow @Final private Screen screen;
 
     private WorldSelectionList getThis() {
         return (WorldSelectionList) (Object) this;
@@ -28,9 +28,9 @@ public class WorldSelectionListMixin {
             at = @At ("HEAD")
     )
     private void notifyListUpdated(CallbackInfo ci) {
-        getThis().children().removeIf(entry -> entry instanceof BackupsListEntry);
+        ((AbstractSelectionListMixin) getThis()).backupmanager$getChildren().removeIf(entry -> entry instanceof BackupsListEntry);
         if (BackupManager.hasBackups()) {
-            getThis().children().add(new BackupsListEntry(screen));
+            ((AbstractSelectionListMixin) getThis()).backupmanager$getChildren().add(new BackupsListEntry(screen));
         }
     }
 }

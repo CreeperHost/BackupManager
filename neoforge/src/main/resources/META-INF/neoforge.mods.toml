@@ -15,21 +15,21 @@ description = '''
 [[dependencies.backupmanager]]
 modId = "neoforge"
 type="required"
-versionRange = "[21.7,)"
+versionRange = "[21.11,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.backupmanager]]
 modId = "minecraft"
 type="required"
-versionRange = "[1.21.7,)"
+versionRange = "[1.21.11,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.backupmanager]]
 modId = "architectury"
 type="required"
-versionRange = "[17.0.8,)"
+versionRange = "[19.0.1,)"
 ordering = "AFTER"
 side = "BOTH"
 

@@ -1,12 +1,12 @@
 package net.creeperhost.backupmanager.providers;
 
 import net.creeperhost.backupmanager.BackupManager;
-import net.minecraft.FileUtil;
 import net.minecraft.client.gui.screens.FaviconTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FileUtil;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;

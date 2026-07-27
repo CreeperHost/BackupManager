@@ -1,6 +1,5 @@
 package net.creeperhost.backupmanager.client.gui;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.creeperhost.backupmanager.BackupManager;
@@ -19,22 +18,19 @@ import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.creeperhost.polylib.client.modulargui.sprite.Material;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.gui.screens.FaviconTexture;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import org.apache.commons.compress.utils.Lists;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -53,11 +49,11 @@ import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.*;
  */
 public class BackupsGui implements GuiProvider {
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
-    private final SelectWorldScreen screen;
+    private final Screen screen;
     private GuiList<Backup> backupList;
     private Backup selected = null;
 
-    public BackupsGui(SelectWorldScreen screen) {
+    public BackupsGui(Screen screen) {
         this.screen = screen;
         BackupManager.refreshBackups();
     }
@@ -147,7 +143,9 @@ public class BackupsGui implements GuiProvider {
         dialog.setResultCallback(name -> {
             try {
                 selected.restore(name);
-                screen.list.reloadWorldList();
+                if (screen instanceof SelectWorldScreen worldScreen && worldScreen.list != null) {
+                    worldScreen.list.reloadWorldList();
+                }
                 selected = null;
                 OptionDialog.simpleInfoDialog(gui, Component.translatable("backupmanager:gui.backups.restored").withStyle(ChatFormatting.GREEN));
             } catch (BackupException ex) {
@@ -176,7 +174,7 @@ public class BackupsGui implements GuiProvider {
             int leftOffset = 3;
             if (backup instanceof FTBBackupProvider.FTBBackup b && b.preview != null && !b.preview.isEmpty()) {
                 if (b.getIcon() == null) {
-                    b.setIcon(FaviconTexture.forWorld(mc().getTextureManager(), Util.sanitizeName(b.sha1, ResourceLocation::validPathChar)));
+                    b.setIcon(FaviconTexture.forWorld(mc().getTextureManager(), Util.sanitizeName(b.sha1, Identifier::validPathChar)));
                     try {
                         String encoded = b.preview.replace("data:image/png;base64, ", "");
                         BufferedImage image = ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(encoded)));
@@ -193,7 +191,7 @@ public class BackupsGui implements GuiProvider {
             } else {
                 File zip = new File(backup.backupLocation());
                 if (backup.getIcon() == null && zip.exists() && zip.getName().endsWith(".zip")) {
-                    backup.setIcon(FaviconTexture.forWorld(mc().getTextureManager(), Util.sanitizeName(backup.backupLocation(), ResourceLocation::validPathChar)));
+                    backup.setIcon(FaviconTexture.forWorld(mc().getTextureManager(), Util.sanitizeName(backup.backupLocation(), Identifier::validPathChar)));
                     try (FileSystem fs = FileSystems.newFileSystem(zip.toPath())){
                         List<Path> paths = Streams.stream(fs.getRootDirectories()).filter(Files::isDirectory).toList();
                         Path worldDir = null;
