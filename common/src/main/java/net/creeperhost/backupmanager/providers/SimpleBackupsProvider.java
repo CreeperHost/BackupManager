@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -140,17 +141,17 @@ public class SimpleBackupsProvider implements BackupProvider {
                 return null;
             }
 
-            List<Path> archives = new ArrayList<>();
-            archives.add(fullBackup);
-            JsonArray children = metadata.getAsJsonArray("children");
-            if (children != null) {
-                for (JsonElement child : children) {
-                    Path archive = resolveChainFile(chainDirectory, child);
-                    if (archive != null && Files.isRegularFile(archive)) {
-                        archives.add(archive);
-                    }
-                }
+            SimpleBackupType backupType = readBackupType(metadata);
+            if (backupType == null) {
+                return null;
             }
+
+            List<Path> children = readChainChildren(chainDirectory, metadata);
+            if (children == null) {
+                return null;
+            }
+
+            List<Path> archives = selectRestoreArchives(fullBackup, children, backupType);
 
             String worldName = readWorldName(fullBackup);
             if (worldName == null || worldName.isBlank()) {
@@ -160,7 +161,7 @@ public class SimpleBackupsProvider implements BackupProvider {
 
             long timestamp = getChainTimestamp(metadata, chainDirectory);
             return new SimpleBackup(fullBackup.toAbsolutePath().toString(), worldName, timestamp,
-                    chainDirectory.toAbsolutePath(), archives);
+                    chainDirectory.toAbsolutePath(), archives, backupType);
         } catch (Exception ex) {
             BackupManager.LOGGER.warn("Failed to read Simple Backups chain at {}", chainDirectory, ex);
             return null;
@@ -170,6 +171,53 @@ public class SimpleBackupsProvider implements BackupProvider {
     private boolean isZipChain(JsonObject metadata) {
         JsonElement format = metadata.get("format");
         return format == null || format.getAsString().equalsIgnoreCase("ZIP");
+    }
+
+    private SimpleBackupType readBackupType(JsonObject metadata) {
+        JsonElement value = metadata.get("backupType");
+        if (value == null || value.isJsonNull()) {
+            return null;
+        }
+
+        try {
+            return SimpleBackupType.valueOf(value.getAsString().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+    private List<Path> readChainChildren(Path chainDirectory, JsonObject metadata) {
+        List<Path> children = new ArrayList<>();
+        JsonArray values = metadata.getAsJsonArray("children");
+        if (values == null) {
+            return children;
+        }
+
+        for (JsonElement value : values) {
+            Path archive = resolveChainFile(chainDirectory, value);
+            if (archive == null || !Files.isRegularFile(archive)) {
+                return null;
+            }
+            children.add(archive);
+        }
+        return children;
+    }
+
+    private List<Path> selectRestoreArchives(Path fullBackup, List<Path> children, SimpleBackupType backupType) {
+        List<Path> archives = new ArrayList<>();
+        archives.add(fullBackup);
+
+        switch (backupType) {
+            case FULL_BACKUPS -> {
+            }
+            case INCREMENTAL -> archives.addAll(children);
+            case DIFFERENTIAL -> {
+                if (!children.isEmpty()) {
+                    archives.add(children.getLast());
+                }
+            }
+        }
+        return archives;
     }
 
     private Path resolveChainFile(Path chainDirectory, JsonElement value) {
@@ -219,6 +267,18 @@ public class SimpleBackupsProvider implements BackupProvider {
         return null;
     }
 
+    private enum SimpleBackupType {
+        FULL_BACKUPS("backupmanager:gui.backups.simplebackups.type.full"),
+        INCREMENTAL("backupmanager:gui.backups.simplebackups.type.incremental"),
+        DIFFERENTIAL("backupmanager:gui.backups.simplebackups.type.differential");
+
+        private final String translationKey;
+
+        SimpleBackupType(String translationKey) {
+            this.translationKey = translationKey;
+        }
+    }
+
     public static class SimpleBackup implements Backup {
         private transient FaviconTexture icon = null;
         private final String location;
@@ -226,17 +286,20 @@ public class SimpleBackupsProvider implements BackupProvider {
         private final long timestamp;
         private final Path chainDirectory;
         private final List<Path> archives;
+        private final SimpleBackupType backupType;
 
         public SimpleBackup(String location, String name, long timestamp) {
-            this(location, name, timestamp, null, List.of(Path.of(location)));
+            this(location, name, timestamp, null, List.of(Path.of(location)), SimpleBackupType.FULL_BACKUPS);
         }
 
-        public SimpleBackup(String location, String name, long timestamp, Path chainDirectory, List<Path> archives) {
+        private SimpleBackup(String location, String name, long timestamp, Path chainDirectory, List<Path> archives,
+                             SimpleBackupType backupType) {
             this.location = location;
             this.name = name;
             this.timestamp = timestamp;
             this.chainDirectory = chainDirectory;
             this.archives = List.copyOf(archives);
+            this.backupType = backupType;
         }
 
         @Override
@@ -277,6 +340,14 @@ public class SimpleBackupsProvider implements BackupProvider {
         @Override
         public String backupProvider() {
             return ChatFormatting.GRAY + "Simple Backups";
+        }
+
+        @Override
+        public List<Component> infoText() {
+            return List.of(Component.translatable(
+                    "backupmanager:gui.backups.simplebackups.type",
+                    Component.translatable(backupType.translationKey)
+            ).withStyle(ChatFormatting.GRAY));
         }
 
         @Override
