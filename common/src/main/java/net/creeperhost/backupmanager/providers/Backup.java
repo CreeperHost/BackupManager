@@ -1,7 +1,7 @@
 package net.creeperhost.backupmanager.providers;
 
 import net.creeperhost.backupmanager.BackupManager;
-import net.minecraft.FileUtil;
+import net.minecraft.util.FileUtil;
 import net.minecraft.client.gui.screens.FaviconTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
@@ -129,7 +129,7 @@ public interface Backup {
 
         try {
             CompoundTag levelTag = NbtIo.readCompressed(levelDat, NbtAccounter.unlimitedHeap());
-            CompoundTag data = levelTag.getCompound("Data");
+            CompoundTag data = levelTag.getCompound("Data").orElseThrow(() -> new BackupException(Component.literal("Invalid level.dat: missing Data compound")));
             if (!data.contains("LevelName")) {
                 throw new BackupException(Component.literal("Failed to set world name because level.dat file is not valid"));
             }

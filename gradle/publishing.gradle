@@ -1,0 +1,36 @@
+publishMods {
+    file = tasks.jar.archiveFile
+    version = rootProject.releaseTag
+    changelog = rootProject.releaseNotes
+    type = artifact_type == 'alpha' ? ALPHA : artifact_type == 'beta' ? BETA : STABLE
+    displayName = "BackupManager ${project.version} for ${project.name == 'fabric' ? 'Fabric' : 'NeoForge'} ${minecraft_version}"
+    dryRun = rootProject.releaseDryRun
+    modLoaders.add(project.name)
+
+    github {
+        accessToken = providers.environmentVariable('GITHUB_TOKEN')
+        parent(rootProject.tasks.named('publishGithub'))
+    }
+
+    if (providers.environmentVariable('CURSEFORGE_PROJECT_ID').isPresent()) {
+        curseforge {
+            projectId = providers.environmentVariable('CURSEFORGE_PROJECT_ID')
+            accessToken = providers.environmentVariable('CURSEFORGE_TOKEN')
+            minecraftVersions.add(minecraft_version)
+            client = true
+            server = false
+            requires('polylib')
+            if (project.name == 'fabric') requires('fabric-api')
+        }
+    }
+    if (providers.environmentVariable('MODRINTH_PROJECT_ID').isPresent()) {
+        modrinth {
+            projectId = providers.environmentVariable('MODRINTH_PROJECT_ID')
+            accessToken = providers.environmentVariable('MODRINTH_TOKEN')
+            minecraftVersions.add(minecraft_version)
+            environment = CLIENT_ONLY
+            requires('6lvkzFFj')
+            if (project.name == 'fabric') requires('P7dR8mSH')
+        }
+    }
+}

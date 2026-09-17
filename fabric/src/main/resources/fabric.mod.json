@@ -1,33 +1,25 @@
 {
   "schemaVersion": 1,
-  "id": "backupmanager",
+  "id": "${mod_id}",
   "version": "${version}",
-  "name": "Backup Manager",
-  "description": "",
-  "authors": [
-    "brandon3055",
-    "CreeperHost!"
-  ],
+  "name": "${mod_name}",
+  "description": "${description}",
+  "authors": ["brandon3055", "CreeperHost"],
   "contact": {
-    "homepage": "",
-    "sources": ""
+    "sources": "https://github.com/CreeperHost/BackupManager",
+    "issues": "https://github.com/CreeperHost/BackupManager/issues"
   },
-  "license": "BSD 4-Clause License",
-  "icon": "",
-  "environment": "*",
+  "license": "${license}",
+  "environment": "client",
   "entrypoints": {
-    "main": [
-      "net.creeperhost.backupmanager.fabric.BackupManagerFabric"
-    ]
+    "client": ["net.creeperhost.backupmanager.fabric.BackupManagerFabric"]
   },
   "depends": {
-    "fabricloader": ">=0.14.22",
-    "fabric": "*",
-    "minecraft": ">=1.21",
-    "architectury": ">=13.0.1",
-    "polylib": ">=2004.0.3-build.112"
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric-api": ">=${fabric_version}",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=${java_version}",
+    "polylib": ">=${polylib_min_version}"
   },
-  "mixins": [
-    "backupmanager-common.mixins.json"
-  ]
+  "mixins": ["backupmanager-common.mixins.json"]
 }

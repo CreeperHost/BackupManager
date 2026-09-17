@@ -1,7 +1,9 @@
 package net.creeperhost.backupmanager.mixin;
 
-import net.creeperhost.backupmanager.BackupManager;
 import net.creeperhost.backupmanager.client.gui.BackupsListEntry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldSelectionList;
 import org.spongepowered.asm.mixin.Final;
@@ -11,26 +13,21 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * Created by brandon3055 on 09/12/2023
- */
-@Mixin (WorldSelectionList.class)
-public class WorldSelectionListMixin {
+@Mixin(WorldSelectionList.class)
+public abstract class WorldSelectionListMixin extends ObjectSelectionList<WorldSelectionList.Entry> {
+    @Shadow @Final private Screen screen;
 
-    @Shadow @Final private SelectWorldScreen screen;
-
-    private WorldSelectionList getThis() {
-        return (WorldSelectionList) (Object) this;
+    protected WorldSelectionListMixin(Minecraft minecraft, int width, int height, int y, int itemHeight) {
+        super(minecraft, width, height, y, itemHeight);
     }
 
-    @Inject (
-            method = "notifyListUpdated",
-            at = @At ("HEAD")
-    )
-    private void notifyListUpdated(CallbackInfo ci) {
-        getThis().children().removeIf(entry -> entry instanceof BackupsListEntry);
-        if (BackupManager.hasBackups()) {
-            getThis().children().add(new BackupsListEntry(screen));
-        }
+    @Inject(method = "notifyListUpdated", at = @At("HEAD"))
+    private void backupmanager$addBackupsEntry(CallbackInfo ci) {
+        // WorldSelectionList is also used by Realms upload screens in 26.3.
+        if (!(screen instanceof SelectWorldScreen selectWorldScreen)) return;
+        removeEntries(children().stream()
+                .filter(entry -> entry instanceof BackupsListEntry)
+                .toList());
+        addEntry(new BackupsListEntry(selectWorldScreen));
     }
 }

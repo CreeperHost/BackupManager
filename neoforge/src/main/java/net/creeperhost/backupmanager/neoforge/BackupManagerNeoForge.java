@@ -1,23 +1,13 @@
 package net.creeperhost.backupmanager.neoforge;
 
 import net.creeperhost.backupmanager.BackupManager;
-import net.neoforged.bus.api.IEventBus;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.Mod;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.neoforged.fml.loading.FMLPaths;
 
-import java.io.IOException;
-
-@Mod (BackupManager.MOD_ID)
+@Mod(value = BackupManager.MOD_ID, dist = Dist.CLIENT)
 public class BackupManagerNeoForge {
-    public static final Logger LOGGER = LogManager.getLogger();
-
-    public BackupManagerNeoForge(IEventBus eventBus) {
-//        EventBuses.registerModEventBus(BackupManager.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
-        try {
-            BackupManager.init();
-        } catch (IOException e) {
-            LOGGER.error("An error occurred while attempting initialize", e);
-        }
+    public BackupManagerNeoForge() {
+        BackupManager.init(FMLPaths.GAMEDIR.get());
     }
 }

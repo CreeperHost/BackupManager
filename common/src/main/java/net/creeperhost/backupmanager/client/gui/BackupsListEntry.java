@@ -1,22 +1,20 @@
 package net.creeperhost.backupmanager.client.gui;
 
+import net.creeperhost.backupmanager.mixin.SelectWorldScreenAccessor;
 import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Rectangle;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldSelectionList;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 
-/**
- * Created by brandon3055 on 11/12/2023
- */
 public class BackupsListEntry extends WorldSelectionList.Entry {
-    private boolean mouseOver = false;
     private final SelectWorldScreen parentScreen;
 
     public BackupsListEntry(SelectWorldScreen parentScreen) {
@@ -25,28 +23,52 @@ public class BackupsListEntry extends WorldSelectionList.Entry {
 
     @Override
     public Component getNarration() {
-        return Component.empty();
+        return Component.translatable("backupmanager:button.backups_entry");
+    }
+
+    private void openBackups() {
+        Minecraft minecraft = Minecraft.getInstance();
+        WorldSelectionList list = ((SelectWorldScreenAccessor) parentScreen).backupmanager$getList();
+        list.setSelected(null);
+        list.setFocused(null);
+        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
+        minecraft.gui.setScreen(new ModularGuiScreen(new BackupsGui(parentScreen), parentScreen));
     }
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
-        if (mouseOver) {
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
-            Minecraft.getInstance().setScreen(new ModularGuiScreen(new BackupsGui(parentScreen), parentScreen));
+    public boolean shouldTakeFocusAfterInteraction() {
+        return false;
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == 1) {
+            openBackups();
             return true;
         }
-
-        return super.mouseClicked(d, e, i);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public void render(GuiGraphics graphics, int index, int yPos, int xPos, int width, int height, int mouseX, int mouseY, boolean mouseOverEntry, float partialTicks) {
-        GuiRender render = new GuiRender(Minecraft.getInstance(), graphics.pose(), graphics.bufferSource());
+    public boolean keyPressed(KeyEvent event) {
+        if (event.isSelection()) {
+            openBackups();
+            return true;
+        }
+        return super.keyPressed(event);
+    }
 
-        Rectangle bounds = Rectangle.create(xPos, yPos, width, 18);
-        mouseOver = bounds.contains(mouseX, mouseY);
+    private Rectangle buttonBounds() {
+        return Rectangle.create(getContentX(), getContentY(), getContentWidth(), 18);
+    }
 
-        render.borderRect(bounds, 1, 0xFF000000, mouseOver ? 0xFFFFFFFF : 0xFF606060);
-        render.drawCenteredString(Component.translatable("backupmanager:button.backups_entry"), bounds.x() + (width / 2D), bounds.y() + 5, mouseOver ? 0x66FF00 : 0xFFFFFF, false);
+    @Override
+    public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float partialTicks) {
+        GuiRender render = new GuiRender(graphics);
+        Rectangle bounds = buttonBounds();
+        boolean highlighted = bounds.contains(mouseX, mouseY) || isFocused();
+        render.borderRect(bounds, 1, 0xFF000000, highlighted ? 0xFFFFFFFF : 0xFF606060);
+        render.drawCenteredString(getNarration(), bounds.x() + bounds.width() / 2D, bounds.y() + 5,
+                highlighted ? 0xFF66FF00 : 0xFFFFFFFF, false);
     }
 }

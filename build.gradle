@@ -1,54 +1,65 @@
+import net.creeperhost.modpacksch.EnvironmentSupport
+
 plugins {
-    id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.6-SNAPSHOT" apply false
-    id "me.shedaniel.unified-publishing" version "0.1.+" apply false
+    id 'base'
+    id 'net.creeperhost.modpacksch' version '0.1.1'
+    id 'net.fabricmc.fabric-loom' version '1.18.1' apply false
+    id 'net.neoforged.moddev' version '2.0.147' apply false
 }
 
-architectury {
-    minecraft = rootProject.minecraft_version
-}
+ext.releaseTag = providers.environmentVariable('GITHUB_REF_NAME')
+        .orElse("${minecraft_version}-${version}")
+ext.releaseNotes = providers.environmentVariable('BACKUPMANAGER_CHANGELOG')
+        .orElse(providers.fileContents(layout.projectDirectory.file('CHANGELOG.md')).asText)
+ext.releaseDryRun = providers.gradleProperty('publishDryRun')
+        .orElse(providers.environmentVariable('BACKUPMANAGER_PUBLISH_DRY_RUN'))
+        .map { it.equalsIgnoreCase('true') }
+        .orElse(false)
 
-subprojects {
-    apply plugin: "dev.architectury.loom"
+publishMods {
+    version = releaseTag
+    changelog = releaseNotes
+    type = artifact_type == 'alpha' ? ALPHA : artifact_type == 'beta' ? BETA : STABLE
+    displayName = "BackupManager ${project.version} for Minecraft ${minecraft_version}"
+    dryRun = releaseDryRun
 
-    loom {
-        silentMojangMappingsLicense()
+    github {
+        repository = 'CreeperHost/BackupManager'
+        accessToken = providers.environmentVariable('GITHUB_TOKEN')
+        commitish = providers.environmentVariable('GITHUB_SHA').orElse(minecraft_version)
+        tagName = releaseTag
+        allowEmptyFiles = true
     }
-
-    dependencies {
-        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        // The following line declares the mojmap mappings, you may use other mappings as well
-        mappings loom.officialMojangMappings()
-        // The following line declares the yarn mappings you may select this one as well.
-        // mappings "net.fabricmc:yarn:1.16.5+build.10:v2"
-    }
 }
 
-allprojects {
-    apply plugin: "java"
-    apply plugin: "architectury-plugin"
-    apply plugin: "maven-publish"
-
-    def ENV = System.getenv()
-    version = rootProject.mod_version
-    archivesBaseName = rootProject.archives_base_name
-    group = rootProject.maven_group
-
-    repositories {
-        mavenLocal()
-        maven {
-            name "CreeperHost"
-            url 'https://maven.creeperhost.net'
+modpacksCh {
+    defaults {
+        gameVersions.add(minecraft_version)
+        environment {
+            client = EnvironmentSupport.REQUIRED
+            server = EnvironmentSupport.UNSUPPORTED
         }
-        maven { url "https://cursemaven.com" }
+        dependencies {
+            requiredCurseForge('576589')
+            requiredModrinth('6lvkzFFj')
+        }
     }
+    publication(':fabric:publishGithub') {
+        displayName = "BackupManager Fabric ${minecraft_version}"
+        loaders.add('fabric')
+        dependencies {
+            requiredCurseForge('306612')
+            requiredModrinth('P7dR8mSH')
+        }
+    }
+    publication(':neoforge:publishGithub') {
+        displayName = "BackupManager NeoForge ${minecraft_version}"
+        loaders.add('neoforge')
+    }
+}
 
-    tasks.withType(JavaCompile) {
-        options.encoding = "UTF-8"
-        options.release = 21
-    }
-
-    java {
-        withSourcesJar()
-    }
+tasks.register('buildAll') {
+    group = 'build'
+    description = 'Builds and tests both BackupManager loaders for this Minecraft branch.'
+    dependsOn(':common:test', ':fabric:build', ':neoforge:build')
 }

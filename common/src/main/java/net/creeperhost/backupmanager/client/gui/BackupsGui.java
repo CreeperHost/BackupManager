@@ -19,11 +19,11 @@ import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.creeperhost.polylib.client.modulargui.sprite.Material;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.gui.screens.FaviconTexture;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
 
@@ -88,7 +88,7 @@ public class BackupsGui implements GuiProvider {
                 .constrain(BOTTOM, relative(root.get(BOTTOM), -24));
 
         GuiButton back = BMStyle.Flat.button(root, Component.translatable("backupmanager:button.back_arrow"))
-                .onPress(() -> gui.mc().setScreen(gui.getParentScreen()))
+                .onPress(() -> gui.mc().gui.setScreen(gui.getParentScreen()))
                 .constrain(BOTTOM, relative(listBackground.get(TOP), -4))
                 .constrain(LEFT, match(listBackground.get(LEFT)))
                 .constrain(WIDTH, literal(50))
@@ -147,7 +147,7 @@ public class BackupsGui implements GuiProvider {
         dialog.setResultCallback(name -> {
             try {
                 selected.restore(name);
-                screen.list.reloadWorldList();
+                ((net.creeperhost.backupmanager.mixin.SelectWorldScreenAccessor) screen).backupmanager$getList().reloadWorldList();
                 selected = null;
                 OptionDialog.simpleInfoDialog(gui, Component.translatable("backupmanager:gui.backups.restored").withStyle(ChatFormatting.GREEN));
             } catch (BackupException ex) {
@@ -176,7 +176,7 @@ public class BackupsGui implements GuiProvider {
             int leftOffset = 3;
             if (backup instanceof FTBBackupProvider.FTBBackup b && b.preview != null && !b.preview.isEmpty()) {
                 if (b.getIcon() == null) {
-                    b.setIcon(FaviconTexture.forWorld(mc().getTextureManager(), Util.sanitizeName(b.sha1, ResourceLocation::validPathChar)));
+                    b.setIcon(FaviconTexture.forWorld(mc().getTextureManager(), Util.sanitizeName(b.sha1, Identifier::validPathChar)));
                     try {
                         String encoded = b.preview.replace("data:image/png;base64, ", "");
                         BufferedImage image = ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(encoded)));
@@ -193,7 +193,7 @@ public class BackupsGui implements GuiProvider {
             } else {
                 File zip = new File(backup.backupLocation());
                 if (backup.getIcon() == null && zip.exists() && zip.getName().endsWith(".zip")) {
-                    backup.setIcon(FaviconTexture.forWorld(mc().getTextureManager(), Util.sanitizeName(backup.backupLocation(), ResourceLocation::validPathChar)));
+                    backup.setIcon(FaviconTexture.forWorld(mc().getTextureManager(), Util.sanitizeName(backup.backupLocation(), Identifier::validPathChar)));
                     try (FileSystem fs = FileSystems.newFileSystem(zip.toPath())){
                         List<Path> paths = Streams.stream(fs.getRootDirectories()).filter(Files::isDirectory).toList();
                         Path worldDir = null;

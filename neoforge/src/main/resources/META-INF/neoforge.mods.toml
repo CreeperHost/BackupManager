@@ -1,44 +1,36 @@
 modLoader = "javafml"
-loaderVersion = "[4,)"
+loaderVersion = "${neoforge_loader_version_range}"
 issueTrackerURL = "https://github.com/CreeperHost/BackupManager/issues"
-license = "BSD 4-Clause License"
+license = "${license}"
 
 [[mods]]
-modId = "backupmanager"
+modId = "${mod_id}"
 version = "${version}"
-displayName = "Backup Manager"
-authors = "brandon3055, CreeperHost!"
-description = '''
-'''
-#logoFile = ""
+displayName = "${mod_name}"
+iconFile = "backupmanager.png"
+authors = "${mod_author}"
+description = '''${description}'''
 
 [[dependencies.backupmanager]]
 modId = "neoforge"
-type="required"
-versionRange = "[21.0.0-beta,)"
+type = "required"
+versionRange = "[${neoforge_version},)"
 ordering = "NONE"
-side = "BOTH"
+side = "CLIENT"
 
 [[dependencies.backupmanager]]
 modId = "minecraft"
-type="required"
-versionRange = "[1.21,)"
+type = "required"
+versionRange = "${minecraft_version_range}"
 ordering = "NONE"
-side = "BOTH"
-
-[[dependencies.backupmanager]]
-modId = "architectury"
-type="required"
-versionRange = "[11.0.9,)"
-ordering = "AFTER"
-side = "BOTH"
+side = "CLIENT"
 
 [[dependencies.backupmanager]]
 modId = "polylib"
-type="required"
-versionRange = "[13.0.1,)"
+type = "required"
+versionRange = "[${polylib_min_version},)"
 ordering = "AFTER"
-side = "BOTH"
+side = "CLIENT"
 
 [[mixins]]
 config = "backupmanager-common.mixins.json"

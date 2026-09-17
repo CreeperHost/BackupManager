@@ -96,8 +96,8 @@ public class TextInputDialog extends GuiElement<TextInputDialog> implements Back
     }
 
     @Override
-    public boolean keyPressed(int key, int scancode, int modifiers) {
-        if (key == InputConstants.KEY_ESCAPE) {
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+        if (event.key() == InputConstants.KEY_ESCAPE) {
             close();
         }
         return true;

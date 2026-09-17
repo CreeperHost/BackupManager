@@ -27,7 +27,13 @@ public class VanillaBackupProvider implements BackupProvider {
     public List<Backup> getBackups() throws IOException {
         Path backups = BackupManager.getMcPath().resolve("backups");
         List<Backup> results = new ArrayList<>();
-        List<Path> files = Files.list(backups).toList();
+        if (!Files.isDirectory(backups)) {
+            return results;
+        }
+        List<Path> files;
+        try (var stream = Files.list(backups)) {
+            files = stream.toList();
+        }
 
         for (Path file : files) {
             if (!file.getFileName().toString().endsWith(".zip")) continue;
@@ -106,7 +112,7 @@ public class VanillaBackupProvider implements BackupProvider {
 
         @Override
         public String backupProvider() {
-            return ChatFormatting.GRAY + "Vanilla / Unknown";
+            return ChatFormatting.GRAY + "Vanilla";
         }
 
         @Override
