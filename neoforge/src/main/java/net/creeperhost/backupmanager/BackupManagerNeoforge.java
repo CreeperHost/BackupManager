@@ -1,6 +1,5 @@
-package net.creeperhost.backupmanager.neoforge;
+package net.creeperhost.backupmanager;
 
-import net.creeperhost.backupmanager.BackupManager;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
@@ -8,12 +7,11 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
-@Mod (BackupManager.MOD_ID)
-public class BackupManagerNeoForge {
+@Mod(BackupManager.MOD_ID)
+public class BackupManagerNeoforge {
     public static final Logger LOGGER = LogManager.getLogger();
 
-    public BackupManagerNeoForge(IEventBus eventBus) {
-//        EventBuses.registerModEventBus(BackupManager.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
+    public BackupManagerNeoforge(IEventBus eventBus) {
         try {
             BackupManager.init();
         } catch (IOException e) {

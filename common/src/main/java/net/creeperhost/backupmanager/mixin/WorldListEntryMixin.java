@@ -1,4 +1,4 @@
-//package net.creeperhost.backupmanager.mixin;
+package net.creeperhost.backupmanager.mixin;//package net.creeperhost.backupmanager.mixin;
 //
 //import net.creeperhost.backupmanager.client.WorldEntryHooks;
 //import net.minecraft.client.gui.GuiGraphics;

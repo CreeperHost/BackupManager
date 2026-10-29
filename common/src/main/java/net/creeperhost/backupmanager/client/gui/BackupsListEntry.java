@@ -4,7 +4,7 @@ import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Rectangle;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.WorldSelectionList;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -33,7 +33,7 @@ public class BackupsListEntry extends WorldSelectionList.Entry {
     public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
         if (mouseOver) {
             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
-            Minecraft.getInstance().setScreen(new ModularGuiScreen(new BackupsGui(parentScreen), parentScreen));
+            Minecraft.getInstance().setScreenAndShow(new ModularGuiScreen(new BackupsGui(parentScreen), parentScreen));
             return true;
         }
 
@@ -41,7 +41,7 @@ public class BackupsListEntry extends WorldSelectionList.Entry {
     }
 
     @Override
-    public void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean mouseOverEntry, float partialTicks) {
+    public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean mouseOverEntry, float partialTicks) {
         GuiRender render = new GuiRender(graphics);
 
         Rectangle bounds = Rectangle.create(getX(), getY(), getWidth(), 18);

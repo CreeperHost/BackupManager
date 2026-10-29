@@ -1,33 +1,36 @@
 {
-  "schemaVersion": 1,
-  "id": "backupmanager",
-  "version": "${version}",
-  "name": "Backup Manager",
-  "description": "",
-  "authors": [
-    "brandon3055",
-    "CreeperHost!"
-  ],
-  "contact": {
-    "homepage": "",
-    "sources": ""
-  },
-  "license": "BSD 4-Clause License",
-  "icon": "",
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "net.creeperhost.backupmanager.fabric.BackupManagerFabric"
-    ]
-  },
-  "depends": {
-    "fabricloader": ">=0.17.2",
-    "fabric": "*",
-    "minecraft": ">=1.21.11",
-    "architectury": ">=19.0.1",
-    "polylib": ">=2107.1.0.176"
-  },
-  "mixins": [
-    "backupmanager-common.mixins.json"
-  ]
+    "schemaVersion": 1,
+    "id": "${mod_id}",
+    "version": "${version}",
+    "name": "${mod_name}",
+    "description": "${description}",
+    "authors": [
+        "${mod_author}"
+    ],
+    "contact": {
+        "homepage": "https://fabricmc.net/",
+        "sources": "https://github.com/FabricMC/fabric-example-mod"
+    },
+    "license": "${license}",
+    "icon": "${mod_id}.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "net.creeperhost.backupmanager.BackupManagerFabric"
+        ]
+    },
+    "mixins": [
+        "${mod_id}.mixins.json",
+        "${mod_id}.fabric.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=${fabric_loader_version}",
+        "fabric-api": "*",
+        "minecraft": "~${minecraft_version}",
+        "java": ">=${java_version}"
+    },
+    "suggests": {
+        "another-mod": "*"
+    }
 }
+  

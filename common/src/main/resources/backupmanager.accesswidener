@@ -1,6 +1,4 @@
-accessWidener   v2  named
+accessWidener v2 official
 
-accessible field net/minecraft/client/gui/screens/worldselection/SelectWorldScreen list Lnet/minecraft/client/gui/screens/worldselection/WorldSelectionList;
-
-extendable method net/minecraft/client/gui/screens/worldselection/WorldSelectionList reloadWorldList ()V
-accessible method net/minecraft/client/gui/screens/worldselection/WorldSelectionList reloadWorldList ()V
+#extendable method net/minecraft/client/gui/screens/worldselection/WorldSelectionList reloadWorldList ()V
+#accessible method net/minecraft/client/gui/screens/worldselection/WorldSelectionList reloadWorldList ()V

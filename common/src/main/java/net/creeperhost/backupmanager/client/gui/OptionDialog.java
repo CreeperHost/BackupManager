@@ -117,7 +117,7 @@ public class OptionDialog extends GuiElement<OptionDialog> implements Background
                 dialogText,
                 Component.translatable("backupmanager:button.ok").withStyle(GREEN))
                 .onButtonPress(0, onAccepted);
-        
+
         int height = parent.font().wordWrapHeight(dialogText, 190);
         dialog.constrain(HEIGHT, literal(45 + height));
         return dialog;

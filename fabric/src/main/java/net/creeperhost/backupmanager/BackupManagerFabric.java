@@ -1,11 +1,11 @@
-package net.creeperhost.backupmanager.fabric;
+package net.creeperhost.backupmanager;
 
-import net.creeperhost.backupmanager.BackupManager;
 import net.fabricmc.api.ModInitializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+
 
 public class BackupManagerFabric implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger();

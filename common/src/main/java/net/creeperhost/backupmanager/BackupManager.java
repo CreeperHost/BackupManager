@@ -1,6 +1,6 @@
 package net.creeperhost.backupmanager;
 
-import dev.architectury.platform.Platform;
+import net.creeperhost.backupmanager.platform.Services;
 import net.creeperhost.backupmanager.providers.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,13 +22,13 @@ public class BackupManager {
     private static Map<String, Backup> backups = new HashMap<>();
 
     public static void init() throws IOException {
-        mcPath = Platform.getGameFolder();
+        mcPath = Services.PLATFORM.getGameFolder();
         savesPath = mcPath.resolve("saves");
 
-        if (Platform.isModLoaded("ftbbackups2")) {
+        if (Services.PLATFORM.isModLoaded("ftbbackups2")) {
             addProvider(new FTBBackupProvider());
         }
-        if (Platform.isModLoaded("simplebackups")) {
+        if (Services.PLATFORM.isModLoaded("simplebackups")) {
             addProvider(new SimpleBackupsProvider());
         }
         //Shouldn't need a mod check for this because it has its own backups folder.

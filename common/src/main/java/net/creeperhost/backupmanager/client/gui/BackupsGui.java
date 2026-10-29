@@ -3,6 +3,7 @@ package net.creeperhost.backupmanager.client.gui;
 import com.google.common.collect.Streams;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.creeperhost.backupmanager.BackupManager;
+import net.creeperhost.backupmanager.mixin.SelectWorldScreenMixin;
 import net.creeperhost.backupmanager.providers.Backup;
 import net.creeperhost.backupmanager.providers.BackupException;
 import net.creeperhost.backupmanager.providers.FTBBackupProvider;
@@ -84,7 +85,7 @@ public class BackupsGui implements GuiProvider {
                 .constrain(BOTTOM, relative(root.get(BOTTOM), -24));
 
         GuiButton back = BMStyle.Flat.button(root, Component.translatable("backupmanager:button.back_arrow"))
-                .onPress(() -> gui.mc().setScreen(gui.getParentScreen()))
+                .onPress(() -> gui.mc().setScreenAndShow(gui.getParentScreen()))
                 .constrain(BOTTOM, relative(listBackground.get(TOP), -4))
                 .constrain(LEFT, match(listBackground.get(LEFT)))
                 .constrain(WIDTH, literal(50))
@@ -143,8 +144,8 @@ public class BackupsGui implements GuiProvider {
         dialog.setResultCallback(name -> {
             try {
                 selected.restore(name);
-                if (screen instanceof SelectWorldScreen worldScreen && worldScreen.list != null) {
-                    worldScreen.list.reloadWorldList();
+                if (screen instanceof SelectWorldScreen worldScreen && worldScreen instanceof SelectWorldScreenMixin mixin) {
+                    mixin.backupmanager$getList().reloadWorldList();
                 }
                 selected = null;
                 OptionDialog.simpleInfoDialog(gui, Component.translatable("backupmanager:gui.backups.restored").withStyle(ChatFormatting.GREEN));
