@@ -6,6 +6,10 @@
   "backupmanager:gui.backups.error_occurred" : "错误！\n\n%s",
   "backupmanager:gui.backups.restored" : "成功还原备份！",
   "backupmanager:gui.backups.file_location" : "文件位置：",
+  "backupmanager:gui.backups.simplebackups.type" : "备份类型：%s",
+  "backupmanager:gui.backups.simplebackups.type.full" : "完整",
+  "backupmanager:gui.backups.simplebackups.type.incremental" : "增量",
+  "backupmanager:gui.backups.simplebackups.type.differential" : "差异",
 
   "backupmanager:button.backups" : "世界备份",
   "backupmanager:button.restore_backup" : "还原备份…",

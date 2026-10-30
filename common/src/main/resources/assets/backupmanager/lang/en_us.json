@@ -6,6 +6,10 @@
   "backupmanager:gui.backups.error_occurred" : "An error occurred!\n\n%s",
   "backupmanager:gui.backups.restored" : "Backup restored successfully!",
   "backupmanager:gui.backups.file_location" : "File Location:",
+  "backupmanager:gui.backups.simplebackups.type" : "Backup type: %s",
+  "backupmanager:gui.backups.simplebackups.type.full" : "Full",
+  "backupmanager:gui.backups.simplebackups.type.incremental" : "Incremental",
+  "backupmanager:gui.backups.simplebackups.type.differential" : "Differential",
 
   "backupmanager:button.backups" : "Backups",
   "backupmanager:button.restore_backup" : "Restore Backup As...",
