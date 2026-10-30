@@ -15,14 +15,21 @@ java {
 
 repositories {
     mavenCentral()
-    maven {
-        name = 'CreeperHost'
-        url = 'https://maven.creeperhost.net'
-    }
+    maven { url = 'https://maven.fabricmc.net' }
+    maven { url = 'https://maven.creeperhost.net' }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = Integer.parseInt(java_version)
+}
+
+tasks.withType(Javadoc).configureEach {
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 tasks.withType(Jar).configureEach {
-    from(rootProject.file('LICENSE')) {
+    from(rootProject.file('LICENSE.md')) {
         rename { "${it}_${mod_name}" }
     }
 }
@@ -58,7 +65,8 @@ processResources {
             'neoforge_version'             : neoforge_version,
             'neoforge_loader_version_range': neoforge_loader_version_range,
             'credits'                      : credits,
-            'java_version'                 : java_version
+            'java_version'                 : java_version,
+            'polylib_min_version'          : polylib_min_version
     ]
 
     var jsonExpandProps = expandProps.collectEntries {
@@ -84,8 +92,9 @@ publishing {
         }
     }
     repositories {
-        maven {
-            url System.getenv('local_maven_url')
+        def localMavenUrl = System.getenv('local_maven_url')
+        if (localMavenUrl) {
+            maven { url = localMavenUrl }
         }
     }
 }

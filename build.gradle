@@ -1,6 +1,65 @@
+import net.creeperhost.modpacksch.EnvironmentSupport
+
 plugins {
-    // see https://maven.fabricmc.net/fabric-loom/fabric-loom.gradle.plugin/maven-metadata.xml for new versions
-    id 'net.fabricmc.fabric-loom' version '1.16.3' apply false
-    // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
-    id 'net.neoforged.moddev' version '2.0.141' apply false
+    id 'base'
+    id 'net.creeperhost.modpacksch' version '0.1.1'
+    id 'net.fabricmc.fabric-loom' version '1.18.1' apply false
+    id 'net.neoforged.moddev' version '2.0.147' apply false
+}
+
+ext.releaseTag = providers.environmentVariable('GITHUB_REF_NAME')
+        .orElse("${minecraft_version}-${version}")
+ext.releaseNotes = providers.environmentVariable('BACKUPMANAGER_CHANGELOG')
+        .orElse(providers.fileContents(layout.projectDirectory.file('CHANGELOG.md')).asText)
+ext.releaseDryRun = providers.gradleProperty('publishDryRun')
+        .orElse(providers.environmentVariable('BACKUPMANAGER_PUBLISH_DRY_RUN'))
+        .map { it.equalsIgnoreCase('true') }
+        .orElse(false)
+
+publishMods {
+    version = releaseTag
+    changelog = releaseNotes
+    type = /*artifact_type == 'alpha' ? ALPHA : artifact_type == 'beta' ? BETA :*/ STABLE
+    displayName = "BackupManager ${project.version} for Minecraft ${minecraft_version}"
+    dryRun = releaseDryRun
+
+    github {
+        repository = 'CreeperHost/BackupManager'
+        accessToken = providers.environmentVariable('GITHUB_TOKEN')
+        commitish = providers.environmentVariable('GITHUB_SHA').orElse(minecraft_version)
+        tagName = releaseTag
+        allowEmptyFiles = true
+    }
+}
+
+modpacksCh {
+    defaults {
+        gameVersions.add(minecraft_version)
+        environment {
+            client = EnvironmentSupport.REQUIRED
+            server = EnvironmentSupport.UNSUPPORTED
+        }
+        dependencies {
+            requiredCurseForge('576589')
+            requiredModrinth('6lvkzFFj')
+        }
+    }
+    publication(':fabric:publishGithub') {
+        displayName = "BackupManager Fabric ${minecraft_version}"
+        loaders.add('fabric')
+        dependencies {
+            requiredCurseForge('306612')
+            requiredModrinth('P7dR8mSH')
+        }
+    }
+    publication(':neoforge:publishGithub') {
+        displayName = "BackupManager NeoForge ${minecraft_version}"
+        loaders.add('neoforge')
+    }
+}
+
+tasks.register('buildAll') {
+    group = 'build'
+    description = 'Builds and tests both BackupManager loaders for this Minecraft branch.'
+    dependsOn(':common:test', ':fabric:build', ':neoforge:build')
 }

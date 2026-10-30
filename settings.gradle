@@ -1,11 +1,11 @@
 pluginManagement {
     repositories {
-        gradlePluginPortal()
-        mavenCentral()
         maven {
             name = 'CreeperHost'
             url = uri('https://maven.creeperhost.net')
         }
+        gradlePluginPortal()
+        mavenCentral()
         exclusiveContent {
             forRepository {
                 maven {
@@ -19,6 +19,7 @@ pluginManagement {
         }
     }
 }
+
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }

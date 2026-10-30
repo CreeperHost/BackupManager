@@ -1,7 +1,15 @@
 plugins {
     id 'multiloader-loader'
     id 'net.neoforged.moddev'
+
 }
+
+dependencies {
+    implementation("net.creeperhost.polylib:polylib-neoforge:${polylib_version}")
+    accessTransformers("net.creeperhost.polylib:polylib-neoforge:${polylib_version}")
+}
+
+apply from: rootProject.file('gradle/publishing.gradle')
 
 neoForge {
     version = neoforge_version
